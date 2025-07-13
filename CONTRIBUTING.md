@@ -4,11 +4,11 @@ First off, thank you for considering contributing to Heart Risk AI. It's people 
 
 ## Where do I go from here?
 
-If you've noticed a bug or have a feature request, [make one](https://github.com/JuanInfante122/heart-risk-ai-model.git/issues/new)! It's generally best if you get confirmation of your bug or approval for your feature request this way before starting to code.
+If you've noticed a bug or have a feature request, [make one](https://github.com/JuanInfante122/heart-risk-model.git/issues/new)! It's generally best if you get confirmation of your bug or approval for your feature request this way before starting to code.
 
 ## Fork & create a branch
 
-If this is something you think you can fix, then [fork Heart Risk AI](https://github.com/JuanInfante122/heart-risk-ai-model.git/fork) and create a branch with a descriptive name.
+If this is something you think you can fix, then [fork Heart Risk AI](https://github.com/JuanInfante122/heart-risk-model.git/fork) and create a branch with a descriptive name.
 
 A good branch name would be (where issue #33 is the ticket you're working on):
 
@@ -46,7 +46,7 @@ git rebase master
 git push --force-with-lease origin 33-add-new-feature
 ```
 
-Finally, go to GitHub and [make a Pull Request](https://github.com/JuanInfante122/heart-risk-ai-model.git/compare) :D
+Finally, go to GitHub and [make a Pull Request](https://github.com/JuanInfante122/heart-risk-model.git/compare) :D
 
 ## Keeping your Pull Request updated
 

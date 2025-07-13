@@ -14,7 +14,7 @@
 ## Quick Start
 
 ```bash
-git clone https://github.com/Juan12Dev/heart-risk-ai.git
+git clone https://github.com/JuanInfante122/heart-risk-model.git
 cd heart-risk-ai
 make setup
 make install

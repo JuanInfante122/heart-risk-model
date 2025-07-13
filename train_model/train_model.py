@@ -124,6 +124,8 @@ class HeartRiskPredictor:
             xgb.XGBClassifier(random_state=42), xgb_params,
             cv=5, scoring='roc_auc', n_jobs=-1
         )
+        xgb_grid.fit(X_train, y_train)
+        self.models['XGBoost'] = xgb_grid.best_estimator_
         # Optimize Gradient Boosting
         gb_params = {
             'n_estimators': [50, 100, 200],

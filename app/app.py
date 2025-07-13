@@ -6,7 +6,6 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 from huggingface_hub import hf_hub_download
-from huggingface_hub import hf_hub_download
 import joblib
 import os
 
@@ -94,16 +93,10 @@ def load_model(repo_id, filename):
 @st.cache_data
 def load_statistics():
     """Load dataset statistics from the raw Kaggle dataset."""
-    """Load dataset statistics from the raw Kaggle dataset."""
     try:
         df = pd.read_csv('data/raw/cardio_train.csv', sep=';')
         df['age_years'] = df['age'] / 365.25
-        df = pd.read_csv('data/raw/cardio_train.csv', sep=';')
-        df['age_years'] = df['age'] / 365.25
         return df
-    except FileNotFoundError:
-        st.warning("Could not load dataset statistics. Raw data file not found.")
-        return None
     except FileNotFoundError:
         st.warning("Could not load dataset statistics. Raw data file not found.")
         return None
@@ -115,18 +108,10 @@ def create_input_form():
     
     patient_data = {}
     
-    patient_data = {}
-    
     col1, col2 = st.columns(2)
     
     with col1:
         st.subheader("Personal Information")
-        patient_data['age'] = st.slider("Age", 25, 70, 50, help="Your age in years.")
-        gender_map = {"Female": 1, "Male": 2}
-        patient_data['gender'] = gender_map[st.selectbox("Gender", ["Female", "Male"])]
-        patient_data['height'] = st.slider("Height (cm)", 140, 200, 165)
-        patient_data['weight'] = st.slider("Weight (kg)", 40, 150, 70)
-
         patient_data['age'] = st.slider("Age", 25, 70, 50, help="Your age in years.")
         gender_map = {"Female": 1, "Male": 2}
         patient_data['gender'] = gender_map[st.selectbox("Gender", ["Female", "Male"])]
@@ -150,28 +135,9 @@ def create_input_form():
         active_map = {"No": 0, "Yes": 1}
         patient_data['active'] = active_map[st.selectbox("Are you physically active?", list(active_map.keys()))]
         
-        patient_data['ap_hi'] = st.slider("Systolic blood pressure (ap_hi)", 90, 240, 120, help="The upper number in a blood pressure reading.")
-        patient_data['ap_lo'] = st.slider("Diastolic blood pressure (ap_lo)", 60, 150, 80, help="The lower number in a blood pressure reading.")
-        cholesterol_map = {"Normal": 1, "Above Normal": 2, "Well Above Normal": 3}
-        patient_data['cholesterol'] = cholesterol_map[st.selectbox("Cholesterol Level", list(cholesterol_map.keys()))]
-        gluc_map = {"Normal": 1, "Above Normal": 2, "Well Above Normal": 3}
-        patient_data['gluc'] = gluc_map[st.selectbox("Glucose Level", list(gluc_map.keys()))]
-
-    with st.expander("Lifestyle Factors"):
-        smoke_map = {"No": 0, "Yes": 1}
-        patient_data['smoke'] = smoke_map[st.selectbox("Do you smoke?", list(smoke_map.keys()))]
-        alco_map = {"No": 0, "Yes": 1}
-        patient_data['alco'] = alco_map[st.selectbox("Do you consume alcohol?", list(alco_map.keys()))]
-        active_map = {"No": 0, "Yes": 1}
-        patient_data['active'] = active_map[st.selectbox("Are you physically active?", list(active_map.keys()))]
-        
     return patient_data
 
 def create_feature_engineering(patient_data):
-    """
-    Apply the same feature engineering to patient data as used in training.
-    This logic is replicated from the `HeartRiskFeatureEngineer` class.
-    """
     """
     Apply the same feature engineering to patient data as used in training.
     This logic is replicated from the `HeartRiskFeatureEngineer` class.
@@ -186,40 +152,7 @@ def create_feature_engineering(patient_data):
     df['age_group'] = pd.cut(df['age']/365.25, bins=[0, 45, 55, 65, 100], labels=['<45', '45-55', '55-65', '65+'])
     df['age_normalized'] = (df['age'] - (25 * 365.25)) / ((70*365.25) - (25*365.25))
     df['age_risk_exponential'] = np.where(df['age']/365.25 > 45, np.exp((df['age']/365.25 - 45) / 10), 1.0)
-    # --- Replicate Age Features ---
-    # The model was trained on age in days. We convert the user's age in years.
-    df['age_in_days'] = df['age'] * 365.25
-    df.rename(columns={'age_in_days': 'age'}, inplace=True) # Rename to match training
     
-    df['age_group'] = pd.cut(df['age']/365.25, bins=[0, 45, 55, 65, 100], labels=['<45', '45-55', '55-65', '65+'])
-    df['age_normalized'] = (df['age'] - (25 * 365.25)) / ((70*365.25) - (25*365.25))
-    df['age_risk_exponential'] = np.where(df['age']/365.25 > 45, np.exp((df['age']/365.25 - 45) / 10), 1.0)
-    
-    # --- Replicate Cardiac Features ---
-    df['bp_category'] = pd.cut(df['ap_hi'], bins=[0, 120, 140, 160, 180, 1000], labels=['Normal', 'Elevated', 'Hypertension Stage 1', 'Hypertension Stage 2', 'Hypertensive Crisis'])
-    df['pulse_pressure'] = df['ap_hi'] - df['ap_lo']
-
-    # --- Replicate Metabolic Features ---
-    df['metabolic_profile'] = df['cholesterol'] / (df['age']/365.25)
-    df['chol_category'] = pd.cut(df['cholesterol'], bins=[0, 1, 2, 3, 1000], labels=['Normal', 'Above Normal', 'Well Above Normal', 'High'])
-    df['metabolic_syndrome_risk'] = ((df['cholesterol'] > 1).astype(int) + (df['gluc'] > 1).astype(int) + (df['ap_hi'] > 140).astype(int))
-    
-    # --- Replicate Gender Interaction Features ---
-    df['male_age_interaction'] = df['gender'] * (df['age']/365.25)
-    df['female_chol_interaction'] = (1 - df['gender']) * df['cholesterol']
-    df['gender_specific_risk'] = np.where(df['gender'] == 2, (df['age']/365.25) * 0.1 + df['cholesterol'] * 0.005, df['cholesterol'] * 0.008)
-
-    # --- Replicate Composite Risk Scores ---
-    df['traditional_risk_score'] = (df['age']/365.25 * 0.04 + df['gender'] * 10 + (df['cholesterol'] - 1) * 20 + df['ap_hi'] * 0.1 + df['gluc'] * 20)
-    df['cardiac_risk_score'] = (df['pulse_pressure'] * 0.2 + df['ap_hi'] * 0.1)
-    df['combined_risk_score'] = (df['traditional_risk_score'] * 0.4 + df['cardiac_risk_score'] * 0.6)
-    
-    # --- Replicate Categorical Encoding ---
-    # We don't need to label encode here as the model uses the numeric versions directly.
-    # But we create the columns so the feature set matches.
-    for col in ['age_group', 'chol_category', 'bp_category']:
-        df[f'{col}_encoded'] = pd.Categorical(df[col], categories=['<45', '45-55', '55-65', '65+', 'Normal', 'Elevated', 'Hypertension Stage 1', 'Hypertension Stage 2', 'Hypertensive Crisis', 'Above Normal', 'Well Above Normal', 'High']).codes
-
     # --- Replicate Cardiac Features ---
     df['bp_category'] = pd.cut(df['ap_hi'], bins=[0, 120, 140, 160, 180, 1000], labels=['Normal', 'Elevated', 'Hypertension Stage 1', 'Hypertension Stage 2', 'Hypertensive Crisis'])
     df['pulse_pressure'] = df['ap_hi'] - df['ap_lo']
@@ -257,8 +190,6 @@ def make_prediction(model_data, patient_data_engineered):
         
         # Ensure all expected features are present, filling missing ones with 0
         X = patient_data_engineered.reindex(columns=expected_features, fill_value=0)
-        # Ensure all expected features are present, filling missing ones with 0
-        X = patient_data_engineered.reindex(columns=expected_features, fill_value=0)
         
         # Scale data
         X_scaled = model_data['scaler'].transform(X)
@@ -273,15 +204,11 @@ def make_prediction(model_data, patient_data_engineered):
         # Categorize risk
         if probability < 0.3:
             risk_category, risk_class = "Low", "risk-low"
-            risk_category, risk_class = "Low", "risk-low"
         elif probability < 0.6:
-            risk_category, risk_class = "Moderate", "risk-moderate"
             risk_category, risk_class = "Moderate", "risk-moderate"
         elif probability < 0.8:
             risk_category, risk_class = "High", "risk-high"
-            risk_category, risk_class = "High", "risk-high"
         else:
-            risk_category, risk_class = "Critical", "risk-critical"
             risk_category, risk_class = "Critical", "risk-critical"
         
         return {
@@ -316,7 +243,6 @@ def display_results(prediction_result, patient_data):
     # Risk gauge chart
     fig_gauge = go.Figure(go.Indicator(
         mode = "gauge+number",
-        mode = "gauge+number",
         value = probability * 100,
         domain = {'x': [0, 1], 'y': [0, 1]},
         title = {'text': "Cardiovascular Risk (%)"},
@@ -332,7 +258,6 @@ def display_results(prediction_result, patient_data):
         }
     ))
     fig_gauge.update_layout(height=300, margin=dict(l=10, r=10, t=50, b=10))
-    fig_gauge.update_layout(height=300, margin=dict(l=10, r=10, t=50, b=10))
     st.plotly_chart(fig_gauge, use_container_width=True)
 
 # --- Main App ---
@@ -345,9 +270,6 @@ st.markdown("### Your personal cardiovascular risk predictor, powered by AI")
 # Sidebar
 with st.sidebar:
     st.subheader("Model Selection")
-    # The app is now hardcoded to work with v3, so we remove the selection
-    model_name = "heart_risk_ensemble_v3"
-    st.info(f"Using model: **{model_name}**")
     # The app is now hardcoded to work with v3, so we remove the selection
     model_name = "heart_risk_ensemble_v3"
     st.info(f"Using model: **{model_name}**")
@@ -375,8 +297,6 @@ with main_col:
         if model_data:
             engineered_df = create_feature_engineering(patient_data)
             prediction_result = make_prediction(model_data, engineered_df)
-            engineered_df = create_feature_engineering(patient_data)
-            prediction_result = make_prediction(model_data, engineered_df)
             
             if prediction_result:
                 display_results(prediction_result, patient_data)
@@ -390,14 +310,10 @@ with sidebar_col:
     - **Technology:** Python, Scikit-learn, XGBoost, Streamlit
     - **AUC-ROC:** 80%
     - **Sensitivity:** 85%
-    - **AUC-ROC:** 80%
-    - **Sensitivity:** 85%
     """)
     
     st.subheader("Dataset Statistics")
     if stats_df is not None:
-        st.metric("Total Patients in Dataset", f"{len(stats_df)}")
-        st.metric("Average Age", f"{stats_df['age_years'].mean():.1f} years")
         st.metric("Total Patients in Dataset", f"{len(stats_df)}")
         st.metric("Average Age", f"{stats_df['age_years'].mean():.1f} years")
         
