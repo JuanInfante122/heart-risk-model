@@ -24,6 +24,15 @@ Make sure you're running the tests before you start making changes. We've got a 
 make install
 ```
 
+## Model Training and Development
+
+If you are contributing to model improvements, please follow these guidelines:
+
+1.  **Create a New Script:** Do not modify existing training scripts. Create a new version (e.g., `train_model_v3.py`) to ensure reproducibility of previous results.
+2.  **Document Your Process:** Use the `AdvancedHeartRiskPredictor` class as a template. Ensure your script clearly outlines the steps: data loading, feature engineering, model selection, and evaluation.
+3.  **Automated Results:** The training script automatically saves results, plots, and the final model to a timestamped directory (e.g., `training_results_YYYYMMDD_HHMMSS/`). This is the preferred way to track experiments.
+4.  **Update Documentation:** If your new model is chosen as the primary one, update the `readme.md` and any other relevant documentation with the new results and methodology.
+
 ## Implement your fix or feature
 
 At this point, you're ready to make your changes! Feel free to ask for help; everyone is a beginner at first :smile_cat:

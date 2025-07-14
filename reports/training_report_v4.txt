@@ -1,0 +1,39 @@
+ADVANCED HEART RISK PREDICTOR - TRAINING REPORT
+============================================================
+
+Training Date: 2025-07-13 15:14:33
+Model Version: AdvancedHeartRiskPredictor_v1.0
+Random State: 42
+
+FINAL TEST RESULTS:
+------------------------------
+Accuracy: 0.6928
+Precision: 0.6461
+Recall: 0.8520
+Specificity: 0.5338
+F1 Score: 0.7349
+Roc Auc: 0.7940
+Average Precision: 0.7698
+Brier Score: 0.2295
+Matthews Corrcoef: 0.4070
+
+Optimal Threshold: 0.0178
+Target Sensitivity: 0.850
+
+TOP 15 FEATURES:
+------------------------------
+feature_std: 0.7682
+ap_hi: 0.6717
+framingham_score: 0.6681
+feature_mean: 0.6414
+poly_age ap_hi: 0.6171
+traditional_risk_score: 0.6139
+poly_age cholesterol: 0.5854
+age_log: 0.5378
+feature_max: 0.5288
+weight: 0.5255
+age_squared: 0.5168
+age: 0.5097
+age_normalized: 0.5074
+feature_median: 0.4922
+combined_risk_score: 0.4866

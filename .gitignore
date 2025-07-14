@@ -129,3 +129,6 @@ models/*.pkl
 *.zip
 data/raw/
 data/processed/
+training_results*/
+catboost_info/
+.streamlit/secrets.toml
